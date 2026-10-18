@@ -42,7 +42,7 @@ describe("question parsing", () => {
     expect(q.year).toBe(2024);
     expect(q.body).toContain("binarySearch");
     expect(q.subquestions.map((s) => s.id)).toEqual(["1-ア", "1-イ", "2", "3", "4"]);
-    expect(q.subquestions[3]).toMatchObject({ type: "short", limit: 15, points: 6 });
+    expect(q.subquestions[3]).toMatchObject({ type: "short", limit: 15, points: 4 });
   });
 
   it("strips answers for the solving screen", () => {

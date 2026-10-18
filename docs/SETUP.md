@@ -35,6 +35,18 @@ git add answers && git commit -m "answer: test" && git push
 Actions の `grade` が走り、`results/2024-spring/q03/20261018-2330.json` と `.md`、`stats/summary.json` が commit されれば OK。
 (Actions を使わずに、Claude Code / Claude アプリでデータリポジトリを開いて「採点して」でも同じ結果になる)
 
+### 過去問の取り込み
+
+データリポジトリの Actions → **import** → Run workflow で、年度(例: `2024`)・期・問(既定 `1-11`)を指定して実行。
+
+1. `scripts/fetch-ipa.mjs` が IPA の年度ページ(`https://www.ipa.go.jp/shiken/mondai-kaiotu/2024r06.html` など)から
+   応用情報の午後「問題冊子・解答例・採点講評」の PDF を探して取得(1.5秒間隔でアクセス)
+2. Claude が `IMPORT.md` のルールで問ごとに `questions/<年度>-<期>/qNN.md` を作成(本文は原文どおり、図は頁画像)
+3. `scripts/check-questions.mjs` で形式チェックして commit・push
+
+1回分(11問)で数十分かかる。初回は `questions` を `1` にして1問だけ試し、出来を確認してから残りを流すのがおすすめ。
+PDF が見つからないと失敗するので、そのときはログの「Fetch PDFs from IPA」を確認する(IPA のページ構成が変わった可能性)。
+
 ## 2. GitHub アカウント・PAT
 
 1. GitHub → Settings → Password and authentication でパスキーを登録し、2FA を有効にする。プライマリメールが検証済みであることを確認

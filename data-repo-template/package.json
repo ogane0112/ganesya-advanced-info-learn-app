@@ -1,0 +1,12 @@
+{
+  "name": "ap-data",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "fetch": "node scripts/fetch-ipa.mjs",
+    "check": "node scripts/check-questions.mjs"
+  },
+  "dependencies": {
+    "yaml": "2.9.1"
+  }
+}

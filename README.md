@@ -13,6 +13,7 @@
 - アプリは「問題表示・解答・保存」だけ。採点ルールはデータリポジトリの `CLAUDE.md`
 - iPad にトークンは置かない。GitHub へのアクセスはすべて Pages Functions 経由
 - データリポジトリの雛形は [`data-repo-template/`](data-repo-template/) (別リポジトリとして作成する)
+- 過去問は データリポジトリの Actions「import」で IPA 公式 PDF をスクレイピングし、Claude が問題ファイルに変換する([docs/SETUP.md](docs/SETUP.md#過去問の取り込み))
 
 ## 構成
 

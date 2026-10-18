@@ -8,5 +8,16 @@ GitHub Actions 上の Claude が `CLAUDE.md` のルールで採点し `results/`
 - `results/` … 採点結果 (Claude が書く)
 - `stats/summary.json` … 分野別集計 (`node scripts/update-stats.mjs` で再生成)
 
+## 過去問の取り込み
+
+Actions の「import」を Run workflow(年度・期・問を指定)すると、
+IPA 公式サイトから午後の問題冊子・解答例・採点講評の PDF を取得し(`scripts/fetch-ipa.mjs`)、
+Claude が `IMPORT.md` のルールで `questions/` に変換して commit します。
+
+ローカルで PDF だけ取りたい場合: `npm ci && node scripts/fetch-ipa.mjs --year 2024 --season spring`(`ipa-pdf/` に保存)
+形式チェック: `node scripts/check-questions.mjs`
+
+## 採点
+
 手動で採点したいときは Actions の「grade」を Run workflow するか、
 Claude Code / Claude アプリでこのリポジトリを開いて「採点して」と頼んでください。
