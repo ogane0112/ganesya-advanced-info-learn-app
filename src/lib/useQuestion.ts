@@ -13,7 +13,8 @@ export function useQuestion(id: string, reveal = false) {
     setQuestion(null);
     setError(null);
     (async () => {
-      const cached = reveal ? undefined : await cache.getQuestion(id);
+      // reveal 時も通信できなければ端末キャッシュ (解答例なし) で表示だけはする
+      const cached = await cache.getQuestion(id);
       if (cached && alive) setQuestion(cached);
       try {
         const q = await api.question(id, reveal);

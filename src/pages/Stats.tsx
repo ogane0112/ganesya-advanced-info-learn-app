@@ -8,7 +8,9 @@ function Bar({ rate }: { rate: number }) {
   const pct = Math.round(rate * 100);
   return (
     <div className="bar" aria-label={`${pct}%`}>
-      <div className={`bar-fill ${pct >= 60 ? "pass" : "fail"}`} style={{ width: `${Math.min(100, pct)}%` }} />
+      <div className="bar-track">
+        <div className={`bar-fill ${pct >= 60 ? "pass" : "fail"}`} style={{ width: `${Math.min(100, pct)}%` }} />
+      </div>
       <span>{pct}%</span>
     </div>
   );

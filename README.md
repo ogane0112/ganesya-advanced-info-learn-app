@@ -32,6 +32,7 @@ functions/api/       Cloudflare Pages Functions
   assets/            GET /api/assets/* (questions/ 配下の画像のみ)
   login.ts           GET /api/login (SW を通らない再ログイン用 URL)
 shared/              アプリと Functions で共通の型・パス検証・問題パーサ
+src/gallery/         UI ギャラリー (シナリオ定義・固定データ・API モック)
 data-repo-template/  データリポジトリの雛形 (CLAUDE.md, grade.yml, サンプル問題)
 scripts/             アイコン生成・GitHub API モック
 ```
@@ -65,6 +66,8 @@ npm run dev         # Vite (:5173, /api は :8788 へプロキシ)
 node scripts/mock-github.mjs data-repo-template   # :9999
 #   .dev.vars に GITHUB_API_URL=http://localhost:9999 を追加してから A) と同じ手順
 
+npm run gallery     # UI ギャラリー (全画面 × 状態をモック API で並べて表示, /gallery.html)
+npm run gallery:shots   # ギャラリー起動中に全シナリオを撮影 → gallery-shots/
 npm test            # vitest
 npm run typecheck
 npm run build
