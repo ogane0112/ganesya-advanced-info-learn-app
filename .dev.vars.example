@@ -1,0 +1,9 @@
+# ローカル開発用 (cp .dev.vars.example .dev.vars)
+GITHUB_TOKEN=github_pat_xxx
+DATA_REPO=your-name/ap-data
+DATA_BRANCH=main
+ACCESS_TEAM_DOMAIN=your-team.cloudflareaccess.com
+ACCESS_AUD=xxxxxxxx
+ALLOWED_EMAIL=you@example.com
+# localhost でのみ有効。本番では絶対に設定しない
+DEV_BYPASS_AUTH=true

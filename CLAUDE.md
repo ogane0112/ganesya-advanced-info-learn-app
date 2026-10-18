@@ -1,0 +1,8 @@
+# 開発メモ (アプリリポジトリ)
+
+- 要件: docs/REQUIREMENTS.md。採点ロジックはアプリに持たない(データリポジトリの CLAUDE.md が担当)
+- `shared/` はアプリと Functions の両方から import される。DOM / Workers 固有 API を使わない
+- GitHub への書き込みパスは必ず `shared/ids.ts` の関数で組み立てる(`answers/` 配下限定)
+- Service Worker は `/api/*` を扱わない(vite.config.ts の navigateFallbackDenylist)
+- 変更後は `npm run typecheck && npm test && npm run build`
+- E2E 確認: `node scripts/mock-github.mjs <データdir>` + `wrangler pages dev dist --binding GITHUB_API_URL=http://localhost:9999 DEV_BYPASS_AUTH=true ...`

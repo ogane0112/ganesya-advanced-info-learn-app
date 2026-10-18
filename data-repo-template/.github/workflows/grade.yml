@@ -1,0 +1,58 @@
+name: grade
+
+on:
+  push:
+    branches: [main]
+    paths: ["answers/**"]
+  workflow_dispatch:
+
+# 採点ジョブを直列化 (連続 push 時のコンフリクト防止)。
+# 実行中のジョブは止めず、待機中のジョブは最新の1件だけ残す (どのジョブも未採点を全件採点するので取りこぼさない)
+concurrency:
+  group: grade
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  id-token: write
+
+jobs:
+  grade:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Configure git
+        run: |
+          git config user.name "claude-grader[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Check pending answers
+        id: pending
+        run: |
+          node scripts/pending.mjs | tee pending.txt
+          echo "count=$(wc -l < pending.txt | tr -d ' ')" >> "$GITHUB_OUTPUT"
+          rm pending.txt
+
+      - name: Grade with Claude
+        if: steps.pending.outputs.count != '0'
+        uses: anthropics/claude-code-action@v1
+        with:
+          # Claude サブスクリプションの OAuth トークン (`claude setup-token` で発行)
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          prompt: |
+            CLAUDE.md の採点ルールに従って未採点の解答を採点し、結果をcommitしてpushしてください。
+          claude_args: >-
+            --max-turns 60
+            --allowedTools "Read,Write,Edit,Glob,Grep,Bash(node scripts/pending.mjs),Bash(node scripts/update-stats.mjs),Bash(git status:*),Bash(git add:*),Bash(git commit:*),Bash(git pull:*),Bash(git push:*),Bash(git log:*),Bash(git diff:*)"
+
+      - name: Verify nothing left
+        if: steps.pending.outputs.count != '0'
+        run: |
+          git pull --ff-only origin main || true
+          left=$(node scripts/pending.mjs | wc -l | tr -d ' ')
+          echo "ungraded after run: $left"

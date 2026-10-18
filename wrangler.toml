@@ -1,0 +1,8 @@
+name = "ganesya-advanced-info-learn-app"
+pages_build_output_dir = "./dist"
+compatibility_date = "2026-10-01"
+compatibility_flags = ["nodejs_compat"]
+
+# 秘密でない設定値 (Secret の GITHUB_TOKEN は Cloudflare ダッシュボード or `wrangler pages secret put` で登録)
+[vars]
+DATA_BRANCH = "main"
