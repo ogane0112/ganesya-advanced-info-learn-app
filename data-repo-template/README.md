@@ -10,11 +10,12 @@ GitHub Actions 上の Claude が `CLAUDE.md` のルールで採点し `results/`
 
 ## 過去問の取り込み
 
-Actions の「import」を Run workflow(年度・期・問を指定)すると、
-IPA 公式サイトから午後の問題冊子・解答例・採点講評の PDF を取得し(`scripts/fetch-ipa.mjs`)、
-Claude が `IMPORT.md` のルールで `questions/` に変換して commit します。
+Actions の「import」を Run workflow(年度・期・問・取り込み元を指定)すると、
+過去問道場(既定)から午後問題のページを保存し(`scripts/fetch-apsiken.mjs`)、解答例は IPA 公式 PDF から取得して
+(`scripts/fetch-ipa.mjs --kinds ans,cmnt`)、Claude が `IMPORT.md` のルールで問題文・設問だけを `questions/` に変換して commit します(解説は取り込みません)。
+取り込み元に `ipa` を選ぶと IPA 公式 PDF の問題冊子から変換します。
 
-ローカルで PDF だけ取りたい場合: `npm ci && node scripts/fetch-ipa.mjs --year 2024 --season spring`(`ipa-pdf/` に保存)
+ローカルで取得だけしたい場合: `npm ci && node scripts/fetch-apsiken.mjs --year 2024 --season spring`(`apsiken-raw/` に保存)
 形式チェック: `node scripts/check-questions.mjs`
 
 ## 採点

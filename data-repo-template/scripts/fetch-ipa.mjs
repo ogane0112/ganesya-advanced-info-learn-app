@@ -4,6 +4,7 @@
 //   node scripts/fetch-ipa.mjs --year 2024 --season spring     # 1回分
 //   node scripts/fetch-ipa.mjs --from 2019 --to 2025           # 範囲
 //   node scripts/fetch-ipa.mjs --year 2024 --dry-run           # 見つけたリンクの表示だけ
+//   node scripts/fetch-ipa.mjs --year 2024 --kinds ans         # 解答例だけ (qs,ans,cmnt から選択)
 // 出力: ipa-pdf/<year>-<season>/{qs,ans,cmnt}.pdf と ipa-pdf/manifest.json
 //
 // 年度ページ https://www.ipa.go.jp/shiken/mondai-kaiotu/<year><era><nn>.html から PDF リンクを探す。
@@ -19,7 +20,7 @@ const WAIT_MS = 1500;
 const KINDS = { qs: "問題冊子", ans: "解答例", cmnt: "採点講評" };
 
 function parseArgs(argv) {
-  const a = { out: "ipa-pdf", dryRun: false, base: BASE };
+  const a = { out: "ipa-pdf", dryRun: false, base: BASE, kinds: Object.keys(KINDS) };
   for (let i = 0; i < argv.length; i++) {
     const k = argv[i];
     const v = () => argv[++i];
@@ -28,12 +29,14 @@ function parseArgs(argv) {
     else if (k === "--to") a.to = Number(v());
     else if (k === "--season") a.season = v();
     else if (k === "--out") a.out = v();
+    else if (k === "--kinds") a.kinds = v().split(",").map((s) => s.trim());
     else if (k === "--base") a.base = v(); // テスト用
     else if (k === "--dry-run") a.dryRun = true;
     else throw new Error(`unknown option: ${k}`);
   }
   if (!a.from || !a.to) throw new Error("--year か --from/--to を指定してください");
   if (a.season && !["spring", "autumn"].includes(a.season)) throw new Error("--season は spring / autumn");
+  if (!a.kinds.length || a.kinds.some((k) => !KINDS[k])) throw new Error("--kinds は qs,ans,cmnt から選択");
   return a;
 }
 
@@ -143,7 +146,7 @@ async function main() {
         console.log(`- ${pageUrl}: ページなし`);
         continue;
       }
-      const links = extractLinks(html, pageUrl, year).filter((l) => !a.season || l.season === a.season);
+      const links = extractLinks(html, pageUrl, year).filter((l) => (!a.season || l.season === a.season) && a.kinds.includes(l.kind));
       console.log(`- ${pageUrl}: ${links.length} 件`);
       for (const l of links) {
         found++;
