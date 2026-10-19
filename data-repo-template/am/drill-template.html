@@ -1,0 +1,382 @@
+<title>科目A 対策ドリル</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=M+PLUS+1:wght@700;800&family=Noto+Sans+JP:wght@400;500;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* レイアウト: 1カラムの解答台。上に試験情報と出題範囲の選択、中央に問題カード、最後に分野別の成績 */
+:root {
+  --bg: #f1f4f8;
+  --surface: #ffffff;
+  --fg: #182131;
+  --muted: #5d6879;
+  --line: #d6dce5;
+  --accent: #1f4e8c;
+  --accent-fg: #ffffff;
+  --accent-soft: #e2eaf6;
+  --ok: #1d7a4b;
+  --ok-soft: #e1f3e9;
+  --ng: #b42318;
+  --ng-soft: #fbe9e7;
+  --font-display: "M PLUS 1", "Hiragino Sans", "Noto Sans JP", system-ui, sans-serif;
+  --font-body: "Noto Sans JP", "Hiragino Sans", "Hiragino Kaku Gothic ProN", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #10141b; --surface: #19202a; --fg: #e6eaf1; --muted: #9aa5b6; --line: #2b3441;
+    --accent: #79a8f0; --accent-fg: #0b1220; --accent-soft: #1d2c45;
+    --ok: #63d197; --ok-soft: #15301f; --ng: #ff8c80; --ng-soft: #3a1b19; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #10141b; --surface: #19202a; --fg: #e6eaf1; --muted: #9aa5b6; --line: #2b3441;
+  --accent: #79a8f0; --accent-fg: #0b1220; --accent-soft: #1d2c45;
+  --ok: #63d197; --ok-soft: #15301f; --ng: #ff8c80; --ng-soft: #3a1b19; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 16px; line-height: 1.7; }
+.page { max-width: 760px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 24px 64px; display: grid; gap: 20px; }
+h1 { font-family: var(--font-display); font-weight: 800; font-size: clamp(26px, 6vw, 34px); line-height: 1.25; margin: 0; letter-spacing: .01em; text-wrap: balance; }
+h1 small { display: block; font-family: var(--font-body); font-weight: 500; font-size: 14px; color: var(--muted); letter-spacing: 0; margin-top: 4px; }
+h2 { font-size: 15px; margin: 0; }
+.num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.exam { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+.exam div { background: var(--surface); padding: 10px 14px; min-width: 0; }
+.exam dt { font-size: 12px; color: var(--muted); letter-spacing: .04em; }
+.exam dd { margin: 0; font-weight: 700; }
+.trend { font-size: 14px; color: var(--muted); margin: 0; }
+.trend a { color: var(--accent); }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 16px; display: grid; gap: 12px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { font: inherit; font-size: 14px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); border-radius: 999px; padding: 6px 14px; min-height: 40px; cursor: pointer; }
+.chip .num { font-size: 12px; color: var(--muted); margin-left: 4px; }
+.chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); }
+.chip[aria-pressed="true"] .num { color: inherit; opacity: .8; }
+.chip:disabled { opacity: .45; cursor: not-allowed; }
+.row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; }
+.btn { font: inherit; font-weight: 700; border-radius: 10px; min-height: 44px; padding: 0 20px; cursor: pointer; border: 1px solid var(--accent); background: var(--accent); color: var(--accent-fg); }
+.btn.ghost { background: transparent; color: var(--accent); }
+.btn:focus-visible, .chip:focus-visible, .choice:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+label.toggle { display: inline-flex; gap: 6px; align-items: center; font-size: 14px; color: var(--muted); }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 20px; display: grid; gap: 16px; }
+.meta { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; font-size: 13px; color: var(--muted); }
+.meta .pos { font-family: var(--font-mono); color: var(--fg); font-weight: 500; }
+.tag { font-size: 12px; padding: 1px 8px; border-radius: 6px; background: var(--accent-soft); color: var(--accent); }
+.tag.calc { background: var(--ng-soft); color: var(--ng); }
+.meta .clock { margin-left: auto; font-family: var(--font-mono); }
+.meta .clock.over { color: var(--ng); }
+.progress { height: 4px; border-radius: 999px; background: var(--line); overflow: hidden; }
+.progress i { display: block; height: 100%; background: var(--accent); }
+.stem { font-size: 17px; white-space: pre-wrap; margin: 0; }
+.choices { display: grid; gap: 10px; }
+.choice { font: inherit; text-align: left; display: grid; grid-template-columns: 2.2em minmax(0, 1fr); gap: 8px; align-items: start; padding: 12px 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); color: var(--fg); cursor: pointer; min-height: 52px; }
+.choice b { font-family: var(--font-display); font-size: 17px; color: var(--accent); }
+.choice:hover:not(:disabled) { border-color: var(--accent); }
+.choice:disabled { cursor: default; }
+.choice.correct { border-color: var(--ok); background: var(--ok-soft); }
+.choice.correct b { color: var(--ok); }
+.choice.wrong { border-color: var(--ng); background: var(--ng-soft); }
+.choice.wrong b { color: var(--ng); }
+.verdict { font-weight: 700; display: flex; gap: 8px; align-items: center; }
+.verdict.ok { color: var(--ok); }
+.verdict.ng { color: var(--ng); }
+.explain { border-left: 3px solid var(--accent); padding: 4px 0 4px 14px; margin: 0; font-size: 15px; }
+.score { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 16px; }
+.score .big { font-family: var(--font-display); font-weight: 800; font-size: 48px; line-height: 1; }
+.score .pass { font-weight: 700; padding: 2px 10px; border-radius: 999px; font-size: 14px; }
+.pass.ok { background: var(--ok-soft); color: var(--ok); }
+.pass.ng { background: var(--ng-soft); color: var(--ng); }
+.bars { display: grid; gap: 10px; }
+.bar { display: grid; grid-template-columns: 7.5em minmax(0, 1fr) 4.5em; gap: 10px; align-items: center; font-size: 14px; }
+.track { position: relative; height: 12px; background: var(--bg); border: 1px solid var(--line); border-radius: 999px; overflow: hidden; }
+.track i { display: block; height: 100%; }
+.track .line { position: absolute; top: -2px; bottom: -2px; left: 60%; width: 2px; background: var(--fg); opacity: .5; }
+.bar .num { text-align: right; }
+.bar > span:first-child { white-space: nowrap; }
+.misslist { margin: 0; padding-left: 1.2em; font-size: 14px; display: grid; gap: 4px; }
+.misslist span { color: var(--muted); }
+.note { font-size: 13px; color: var(--muted); margin: 0; }
+.opts { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; }
+.opts label { display: inline-flex; gap: 6px; align-items: center; font-size: 14px; color: var(--muted); }
+select { font: inherit; font-size: 14px; color: var(--fg); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; min-height: 40px; padding: 0 8px; max-width: 100%; }
+.chip.exam { border-color: var(--accent); color: var(--accent); font-weight: 700; }
+.chip.exam[aria-pressed="true"] { color: var(--accent-fg); }
+details.progress-table summary { cursor: pointer; font-weight: 700; font-size: 15px; }
+.ptable { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 8px; }
+.ptable th, .ptable td { text-align: left; padding: 6px 4px; border-bottom: 1px solid var(--line); }
+.ptable td.num, .ptable th.num { text-align: right; white-space: nowrap; }
+.ptable th { white-space: nowrap; }
+.ptable .area td { font-weight: 700; background: var(--bg); }
+.mini { display: inline-block; width: 60px; height: 6px; border-radius: 999px; background: var(--line); overflow: hidden; vertical-align: middle; margin-left: 6px; }
+.mini i { display: block; height: 100%; }
+.examclock { font-family: var(--font-mono); font-weight: 500; color: var(--fg); }
+.examclock.low { color: var(--ng); }
+@media (max-width: 480px) { .bar { grid-template-columns: 6.8em minmax(0, 1fr) 4em; font-size: 13px; } .card { padding: 16px; } }
+</style>
+
+<main class="page">
+  <header>
+    <h1>科目A 対策ドリル<small>応用情報技術者試験・旧午前 / オリジナル問題 __TOTAL__問(テクノロジ __T__ / マネジメント __M__ / ストラテジ __S__)</small></h1>
+  </header>
+
+  <dl class="exam">
+    <div><dt>形式</dt><dd>四肢択一 80問</dd></div>
+    <div><dt>時間</dt><dd><span class="num">150</span>分(1問 約<span class="num">1:52</span>)</dd></div>
+    <div><dt>合格基準</dt><dd><span class="num">60</span>点 / 100点</dd></div>
+    <div><dt>2026年度前期</dt><dd>CBT <span class="num">10/28</span>〜<span class="num">11/10</span></dd></div>
+  </dl>
+  <p class="trend">ネットで調べた傾向を反映: 令和7年度秋期は計算問題が9問→17問に増え、経済的発注量のように公式を知らないと解けない問題も出た(<a href="https://www.tac-school.co.jp/file/tac/kouza_joho/pdf/sokuhou/r07aki_ap_comment.pdf" target="_blank" rel="noopener">TAC 講評</a>)。令和6年度秋期からのシラバス改訂で生成AI・データサイエンス・DX の知識が出題範囲に入った(<a href="https://www.ipa.go.jp/archive/press/2023/press20231225.html" target="_blank" rel="noopener">IPA</a>)。2026年度から CBT 化し「午前」は「科目A」に改称(<a href="https://www.ipa.go.jp/pressrelease/2025/press20250812.html" target="_blank" rel="noopener">IPA</a>)。</p>
+
+  <section class="panel" id="setup" aria-labelledby="setup-h">
+    <h2 id="setup-h">出題範囲</h2>
+    <div class="chips" id="modes"></div>
+    <div class="opts">
+      <label for="topic">中分類 <select id="topic"></select></label>
+      <label for="count">出題数 <select id="count"><option value="10">10問</option><option value="20" selected>20問</option><option value="40">40問</option><option value="0">すべて</option></select></label>
+      <label class="toggle"><input type="checkbox" id="shuffle" checked> シャッフル</label>
+    </div>
+    <div class="row">
+      <p class="note" id="history-note"></p>
+      <button class="btn" id="start" type="button">はじめる</button>
+    </div>
+    <details class="progress-table" id="progress"><summary>これまでの学習状況</summary><div id="progress-body"></div></details>
+  </section>
+
+  <section class="card" id="quiz" hidden aria-live="polite"></section>
+  <section class="card" id="result" hidden></section>
+</main>
+
+<script>
+const QUESTIONS = __DATA__;
+const LETTERS = ["ア", "イ", "ウ", "エ"];
+const PACE = 150 * 60 / 80; // 本番の1問あたり秒数
+const AREAS = ["テクノロジ", "マネジメント", "ストラテジ"];
+const EXAM_MIX = { "テクノロジ": 50, "マネジメント": 10, "ストラテジ": 20 };
+
+const store = (() => {
+  let s = { stats: {}, last: null };
+  try { s = Object.assign(s, JSON.parse(localStorage.getItem("ap-am-drill-v2") || "{}")); } catch {}
+  return Object.assign(s, { save() { try { localStorage.setItem("ap-am-drill-v2", JSON.stringify({ stats: this.stats, last: this.last })); } catch {} } });
+})();
+const stat = id => store.stats[id] || { n: 0, ok: 0, last: null };
+
+const MODES = [
+  { id: "all", label: "すべて", pick: () => true },
+  ...AREAS.map(a => ({ id: a, label: a + "系", pick: q => q.area === a })),
+  { id: "calc", label: "計算問題", pick: q => q.calc },
+  { id: "new", label: "新シラバス(AI・DX)", pick: q => q.new },
+  { id: "unseen", label: "未解答", pick: q => stat(q.id).n === 0 },
+  { id: "miss", label: "前回まちがえた", pick: q => stat(q.id).last === false },
+  { id: "exam", label: "本番形式 80問", exam: true, pick: () => true },
+];
+
+let mode = "all";
+let run = null;
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const fmt = sec => Math.floor(sec / 60) + ":" + String(Math.floor(sec % 60)).padStart(2, "0");
+const shuffle = a => a.map(x => [Math.random(), x]).sort((p, q) => p[0] - q[0]).map(x => x[1]);
+
+function topicsFor(m) {
+  const set = new Map();
+  for (const q of QUESTIONS) if (m.pick(q)) set.set(q.topic, q.area);
+  return [...set];
+}
+
+function pool() {
+  const m = MODES.find(x => x.id === mode);
+  const topic = $("topic").value;
+  return QUESTIONS.filter(q => m.pick(q) && (!topic || q.topic === topic));
+}
+
+function renderSetup() {
+  const box = $("modes");
+  box.replaceChildren();
+  for (const m of MODES) {
+    const n = m.exam ? 80 : QUESTIONS.filter(m.pick).length;
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "chip" + (m.exam ? " exam" : "");
+    b.setAttribute("aria-pressed", String(mode === m.id));
+    b.disabled = n === 0;
+    b.innerHTML = esc(m.label) + (m.exam ? "" : '<span class="num">' + n + "</span>");
+    b.onclick = () => { mode = m.id; renderSetup(); };
+    box.append(b);
+  }
+  const m = MODES.find(x => x.id === mode);
+  const sel = $("topic"), prev = sel.value;
+  sel.replaceChildren(new Option("すべて", ""));
+  if (!m.exam) for (const [t, a] of topicsFor(m)) sel.append(new Option(t + "(" + a.slice(0, 1) + ")", t));
+  sel.value = [...sel.options].some(o => o.value === prev) ? prev : "";
+  sel.disabled = $("count").disabled = !!m.exam;
+  const n = m.exam ? 80 : pool().length;
+  $("start").textContent = m.exam ? "模試をはじめる(150分)" : "はじめる";
+  $("history-note").textContent = (m.exam ? "テクノロジ50・マネジメント10・ストラテジ20問を無作為に出題し、150分で計測します。" : "対象 " + n + "問。")
+    + (store.last ? " 前回: " + store.last.label + " " + store.last.correct + "/" + store.last.total + "問正解" : "");
+  renderProgress();
+}
+
+function renderProgress() {
+  const rows = [];
+  let seenAll = 0;
+  for (const a of AREAS) {
+    const qs = QUESTIONS.filter(q => q.area === a);
+    rows.push(rowHtml(a + "系", qs, true));
+    for (const t of [...new Set(qs.map(q => q.topic))]) rows.push(rowHtml(t, qs.filter(q => q.topic === t), false));
+    seenAll += qs.filter(q => stat(q.id).n > 0).length;
+  }
+  $("progress-body").innerHTML = '<p class="note">解答済み ' + seenAll + " / " + QUESTIONS.length + "問。正答率はそれぞれの問題の最新の解答で計算しています。</p>" +
+    '<div style="overflow-x:auto"><table class="ptable"><thead><tr><th>分類</th><th class="num">解答済み</th><th class="num">正答率</th></tr></thead><tbody>' + rows.join("") + "</tbody></table></div>";
+}
+function rowHtml(name, qs, isArea) {
+  const seen = qs.filter(q => stat(q.id).n > 0);
+  const ok = seen.filter(q => stat(q.id).last).length;
+  const r = seen.length ? ok / seen.length : null;
+  const bar = r == null ? "" : '<span class="mini"><i style="width:' + (r * 100) + "%;background:var(" + (r >= .6 ? "--ok" : "--ng") + ')"></i></span>';
+  return '<tr class="' + (isArea ? "area" : "") + '"><td>' + esc(name) + '</td><td class="num">' + seen.length + "/" + qs.length + '</td><td class="num">' + (r == null ? "−" : Math.round(r * 100) + "%") + bar + "</td></tr>";
+}
+
+function start() {
+  const m = MODES.find(x => x.id === mode);
+  let list, label, limit = null;
+  if (m.exam) {
+    list = AREAS.flatMap(a => shuffle(QUESTIONS.filter(q => q.area === a)).slice(0, EXAM_MIX[a]));
+    list = shuffle(list);
+    label = "本番形式 80問"; limit = 150 * 60;
+  } else {
+    list = pool();
+    if ($("shuffle").checked) list = shuffle(list);
+    const c = Number($("count").value);
+    if (c) list = list.slice(0, c);
+    const t = $("topic").value;
+    label = m.label + (t ? " / " + t : "");
+  }
+  if (!list.length) return;
+  run = { label, list, i: 0, answers: [], startedAt: Date.now(), qStart: Date.now(), timer: null, limit };
+  $("setup").hidden = true; $("result").hidden = true; $("quiz").hidden = false;
+  showQuestion();
+}
+
+function tickClock() {
+  const q = $("clock"); if (q) { const sec = (Date.now() - run.qStart) / 1000; q.textContent = fmt(sec); q.classList.toggle("over", sec > PACE); }
+  if (run.limit) {
+    const left = run.limit - (Date.now() - run.startedAt) / 1000;
+    const el = $("examclock");
+    if (el) { el.textContent = "残り " + fmt(Math.max(0, left)); el.classList.toggle("low", left < 600); }
+    if (left <= 0) finish(true);
+  }
+}
+
+function showQuestion() {
+  const q = run.list[run.i];
+  run.qStart = Date.now();
+  const tags = [q.area + "系", q.topic].map(t => '<span class="tag">' + esc(t) + "</span>").join("")
+    + (q.calc ? '<span class="tag calc">計算</span>' : "") + (q.new ? '<span class="tag">新シラバス</span>' : "");
+  $("quiz").innerHTML =
+    '<div class="progress"><i style="width:' + (run.i / run.list.length * 100) + '%"></i></div>' +
+    '<div class="meta"><span class="pos">' + (run.i + 1) + " / " + run.list.length + "</span>" + tags +
+    (run.limit ? '<span class="clock examclock" id="examclock"></span>' : '<span class="clock" id="clock" title="本番ペースは1問 1:52">0:00</span>') + "</div>" +
+    '<p class="stem">' + esc(q.q) + "</p>" +
+    '<div class="choices">' + q.c.map((c, k) => '<button type="button" class="choice" data-k="' + k + '"><b>' + LETTERS[k] + "</b><span>" + esc(c) + "</span></button>").join("") + "</div>" +
+    '<div id="after"></div>' +
+    (run.limit ? '<div class="row"><span class="note">本番形式では解説は最後にまとめて確認できます。</span><button class="btn ghost" type="button" id="quit">ここで採点する</button></div>' : "");
+  $("quiz").querySelectorAll(".choice").forEach(b => b.onclick = () => answer(Number(b.dataset.k)));
+  if (run.limit) $("quit").onclick = () => finish(true);
+  clearInterval(run.timer);
+  run.timer = setInterval(tickClock, 500); tickClock();
+  $("quiz").scrollIntoView({ block: "start", behavior: "smooth" });
+}
+
+function record(q, ok) {
+  const s = stat(q.id);
+  store.stats[q.id] = { n: s.n + 1, ok: s.ok + (ok ? 1 : 0), last: ok };
+}
+
+function answer(k) {
+  const q = run.list[run.i];
+  if (run.answers[run.i] != null) return;
+  const ok = k === q.a;
+  run.answers[run.i] = { id: q.id, k, ok, sec: (Date.now() - run.qStart) / 1000 };
+  record(q, ok); store.save();
+  if (run.limit) { next(); return; }
+  clearInterval(run.timer);
+  $("quiz").querySelectorAll(".choice").forEach(b => {
+    const kk = Number(b.dataset.k);
+    b.disabled = true;
+    if (kk === q.a) b.classList.add("correct");
+    else if (kk === k) b.classList.add("wrong");
+  });
+  const last = run.i === run.list.length - 1;
+  $("after").innerHTML =
+    '<div class="verdict ' + (ok ? "ok" : "ng") + '">' + (ok ? "○ 正解" : "× 不正解(正解は " + LETTERS[q.a] + ")") + "</div>" +
+    '<p class="explain">' + esc(q.e) + "</p>" +
+    '<div class="row"><span class="note num">' + fmt(run.answers[run.i].sec) + "</span>" +
+    '<button class="btn" type="button" id="next">' + (last ? "結果を見る" : "次の問題") + "</button></div>";
+  $("next").onclick = next;
+  $("next").focus({ preventScroll: true });
+}
+
+function next() {
+  if (run.i < run.list.length - 1) { run.i++; showQuestion(); } else finish(false);
+}
+
+function finish(early) {
+  if (!run || run.done) return;
+  run.done = true;
+  clearInterval(run.timer);
+  const total = run.list.length;
+  const correct = run.answers.filter(a => a && a.ok).length;
+  const answered = run.answers.filter(Boolean).length;
+  const pct = Math.round(correct / total * 100);
+  const missed = run.list.map((q, i) => ({ q, a: run.answers[i] })).filter(x => !x.a?.ok);
+  store.last = { label: run.label, correct, total };
+  store.save();
+  const elapsed = (Date.now() - run.startedAt) / 1000;
+
+  const groups = [...AREAS.map(a => [a + "系", q => q.area === a]), ["計算問題", q => q.calc], ["新シラバス", q => q.new]];
+  const bars = groups.map(([name, f]) => {
+    const idx = run.list.map((q, i) => f(q) ? i : -1).filter(i => i >= 0);
+    if (!idx.length) return "";
+    const c = idx.filter(i => run.answers[i]?.ok).length;
+    const r = c / idx.length;
+    return '<div class="bar"><span>' + esc(name) + '</span><div class="track"><i style="width:' + (r * 100) + "%;background:var(" + (r >= .6 ? "--ok" : "--ng") + ')"></i><span class="line" aria-hidden="true"></span></div><span class="num">' + c + "/" + idx.length + "</span></div>";
+  }).join("");
+
+  const missHtml = missed.map(({ q, a }) =>
+    "<li><details><summary>" + esc(q.q.split("\n")[0].slice(0, 60)) + (q.q.length > 60 ? "…" : "") + " <span>(" + esc(q.topic) + (a ? "" : "・未解答") + ")</span></summary>" +
+    '<p class="note">あなたの解答: ' + (a ? LETTERS[a.k] + " " + esc(q.c[a.k]) : "−") + "<br>正解: " + LETTERS[q.a] + " " + esc(q.c[q.a]) + "</p>" +
+    '<p class="explain">' + esc(q.e) + "</p></details></li>").join("");
+
+  $("quiz").hidden = true; $("result").hidden = false;
+  $("result").innerHTML =
+    "<h2>" + esc(run.label) + " の結果</h2>" +
+    '<div class="score"><span class="big num">' + pct + '<small style="font-size:20px">%</small></span>' +
+    '<span class="pass ' + (pct >= 60 ? "ok" : "ng") + '">' + (pct >= 60 ? "合格ライン到達" : "合格ラインまであと " + Math.max(0, Math.ceil(total * .6) - correct) + "問") + "</span>" +
+    '<span class="note num">' + correct + "/" + total + "問正解" + (answered < total ? "(未解答 " + (total - answered) + "問)" : "") + " · 所要 " + fmt(elapsed) + " · 1問平均 " + fmt(elapsed / Math.max(1, answered)) + "(本番ペース 1:52)</span></div>" +
+    '<div class="bars">' + bars + '</div><p class="note">縦線は合格基準の 60%。</p>' +
+    (missed.length ? "<h2>まちがえた問題(タップで解説)</h2><ol class=\"misslist\">" + missHtml + "</ol>" : "") +
+    '<div class="row">' + (missed.length ? '<button class="btn" type="button" id="retry">まちがえた問題を解き直す</button>' : "") +
+    '<button class="btn ghost" type="button" id="back">出題範囲を選ぶ</button></div>';
+  if (missed.length) $("retry").onclick = () => {
+    const list = missed.map(x => x.q);
+    run = { label: "解き直し", list, i: 0, answers: [], startedAt: Date.now(), qStart: Date.now(), timer: null, limit: null };
+    $("result").hidden = true; $("quiz").hidden = false; showQuestion();
+  };
+  $("back").onclick = () => { run = null; $("result").hidden = true; $("setup").hidden = false; renderSetup(); $("setup").scrollIntoView({ block: "start" }); };
+  $("result").scrollIntoView({ block: "start", behavior: "smooth" });
+}
+
+document.addEventListener("keydown", e => {
+  if (!run || $("quiz").hidden || e.metaKey || e.ctrlKey || e.altKey) return;
+  if (e.target.tagName === "SELECT") return;
+  const map = { "1": 0, "2": 1, "3": 2, "4": 3, a: 0, b: 1, c: 2, d: 3 };
+  if (e.key in map && run.answers[run.i] == null) { answer(map[e.key]); e.preventDefault(); }
+  else if (e.key === "Enter" && run.answers[run.i] != null && document.activeElement?.id !== "next") { next(); e.preventDefault(); }
+});
+
+$("start").onclick = start;
+$("topic").onchange = () => renderSetup();
+renderSetup();
+</script>
